@@ -49,7 +49,7 @@ function create () {
     redHPBar3.anchor.setTo(0.5, 0.5);
     redHPBar3.smoothed = false;
 
-    blueHPBar1 = game.add.sprite(game.width-25, game.height - 50, 'healthbar');
+    blueHPBar1 = game.add.sprite(game.width - 25, game.height - 50, 'healthbar');
     blueHPBar1.anchor.setTo(0.5, 0.5);
     blueHPBar1.smoothed = false;
 
@@ -127,6 +127,12 @@ function create () {
 function restartGame() {
     redShip.reset(game.world.centerX, 50);
     blueShip.reset(game.world.centerX, game.world.height - 50);
+    redHPBar1.reset(25, 50, 'healthbar');
+    redHPBar2.reset(60, 50, 'healthbar');
+    redHPBar3.reset(95, 50, 'healthbar');
+    blueHPBar1.reset(game.width - 25, game.height - 50, 'healthbar');
+    blueHPBar2.reset(game.width - 60, game.height - 50, 'healthbar');
+    blueHPBar3.reset(game.width - 95, game.height - 50, 'healthbar');
     
     redShip.hp = 3;
     blueShip.hp = 3;
@@ -235,6 +241,26 @@ function shipHit (ship, bullet) {
 
     bullet.kill();
     ship.hp--;
+
+    if(ship.name === "Blue Ship") {
+        if(ship.hp === 2) {
+            blueHPBar3.kill();
+        } else if(ship.hp === 1){
+            blueHPBar2.kill();
+        } else{
+            blueHPBar1.kill();
+        }
+    }
+
+    if(ship.name === "Red Ship") {
+        if(ship.hp === 2) {
+            redHPBar3.kill();
+        } else if(ship.hp === 1){
+            redHPBar2.kill();
+        } else{
+            redHPBar1.kill();
+        }
+    }
 
     if (ship.hp === 0) {
         ship.kill();
