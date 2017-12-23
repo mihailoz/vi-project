@@ -1,4 +1,4 @@
-var game = new Phaser.Game(1024, 768, Phaser.AUTO, 'game_container', { preload: preload, create: create,  update: update});
+var game = new Phaser.Game('100', '100', Phaser.AUTO, 'game_container', { preload: preload, create: create,  update: update});
 
 var blueShip;
 var redShip;
@@ -8,6 +8,9 @@ var blueBulletTime = 0;
 var redBullets;
 var redBulletTime = 0;
 var explosions;
+var winner;
+var winnerBanner;
+var restartText;
 
 function preload () {
     game.load.image('logo', 'phaser.png');
@@ -54,19 +57,21 @@ function create () {
         b.events.onOutOfBounds.add(resetBullet, this);
     }
 
-    blueShip = game.add.sprite(game.world.centerX, 718, 'ship_blue');
+    blueShip = game.add.sprite(game.world.centerX, game.world.height - 50, 'ship_blue');
+    blueShip.name = "Blue Ship";
     blueShip.anchor.setTo(0.5, 0.5);
     blueShip.smoothed = false;
     blueShip.collideWorldBounds = true;
     blueShip.scale.setTo(4, 4);
-    blueShip.hp = 5;
+    blueShip.hp = 3;
     
     redShip = game.add.sprite(game.world.centerX, 50, 'ship_red');
+    redShip.name = "Red Ship";
     redShip.anchor.setTo(0.5, 0.5);
     redShip.smoothed = false;
     redShip.scale.setTo(4, 4);
     redShip.angle = 180;
-    redShip.hp = 5;
+    redShip.hp = 3;
 
     game.physics.enable(blueShip, Phaser.Physics.ARCADE);
     game.physics.enable(redShip, Phaser.Physics.ARCADE);
@@ -85,20 +90,58 @@ function create () {
 
     cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.A, Phaser.Keyboard.D ]);
-    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.P, Phaser.Keyboard.B ]);
+    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.P, Phaser.Keyboard.B, Phaser.Keyboard.ENTER ]);
+}
+
+function restartGame() {
+    redShip.reset(game.world.centerX, 50);
+    blueShip.reset(game.world.centerX, game.world.height - 50);
+    
+    redShip.hp = 3;
+    blueShip.hp = 3;
+
+    winner = undefined;
+    winnerBanner.kill();
+    restartText.kill();
 }
 
 function update() {
-
-    // As we don't need to exchange any velocities or motion we can the 'overlap' check instead of 'collide'
-    game.physics.arcade.overlap(blueBullets, redBullets, bulletCollisionHandler, null, this);
-    game.physics.arcade.overlap(blueBullets, redShip, shipHit, null, this);
-    game.physics.arcade.overlap(redBullets, blueShip, shipHit, null, this);
-
     blueShip.body.velocity.x = 0;
     blueShip.body.velocity.y = 0;
     redShip.body.velocity.x = 0;
     redShip.body.velocity.y = 0;
+
+    if(winner) {
+        if(!winnerBanner) {
+            var style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+
+            winnerBanner = game.add.text(game.width / 2, game.height / 2, "The winner is " + winner, style);
+            winnerBanner.anchor.setTo(0.5, 0.5);
+            winnerBanner.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+
+            var style2 = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+
+            restartText = game.add.text(game.width / 2, (game.height / 2) + 100, "To start new game press enter...", style2);
+            restartText.anchor.setTo(0.5, 0.5);
+            restartText.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+        } else {
+            winnerBanner.reset(game.width / 2, game.height / 2);
+            winnerBanner.text = "The winner is " + winner;
+            restartText.reset(game.width / 2, (game.height / 2) + 100);
+        }
+
+        if(game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) {
+            restartGame();
+        }
+    } else {
+        gameRunningUpdate();
+    }
+}
+
+function gameRunningUpdate () {
+    game.physics.arcade.overlap(blueBullets, redBullets, bulletCollisionHandler, null, this);
+    game.physics.arcade.overlap(blueBullets, redShip, shipHit, null, this);
+    game.physics.arcade.overlap(redBullets, blueShip, shipHit, null, this);
 
     if (cursors.left.isDown && blueShip.x > 32) {
         blueShip.body.velocity.x = -300;
@@ -164,13 +207,18 @@ function shipHit (ship, bullet) {
 
     if (ship.hp === 0) {
         ship.kill();
+        
+        if(ship.name === "Blue Ship") {
+            winner = "Red Ship";
+        } else {
+            winner = "Blue Ship";
+        }
     }
 }
 
 function resetBullet (bullet) {
-
+    console.log("OUT OF BOUNDS", bullet);
     bullet.kill();
-
 }
 
 function bulletCollisionHandler (bullet1, bullet2) {
