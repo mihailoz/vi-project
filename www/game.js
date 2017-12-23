@@ -11,6 +11,12 @@ var explosions;
 var winner;
 var winnerBanner;
 var restartText;
+var blueHPBar1;
+var blueHPBar2;
+var blueHPBar3;
+var redHPBar1;
+var redHPBar2;
+var redHPBar3;
 
 function preload () {
     game.load.image('logo', 'phaser.png');
@@ -20,6 +26,7 @@ function preload () {
     game.load.image('bullet_red', 'sprites/bullet_red.png');
     game.load.image('explosion', 'sprites/explosion.png');
     game.load.spritesheet('ship_red_sprite', 'sprites/red_ship_sprite.png', 92, 64);
+    game.load.image('healthbar', 'sprites/health_bar.png');
 }
 
 function create () {
@@ -30,6 +37,30 @@ function create () {
     blueBullets = game.add.group();
     blueBullets.enableBody = true;
     blueBullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    redHPBar1 = game.add.sprite(25, 50, 'healthbar');
+    redHPBar1.anchor.setTo(0.5, 0.5);
+    redHPBar1.smoothed = false;
+
+    redHPBar2 = game.add.sprite(60, 50, 'healthbar');
+    redHPBar2.anchor.setTo(0.5, 0.5);
+    redHPBar2.smoothed = false;
+
+    redHPBar3 = game.add.sprite(95, 50, 'healthbar');
+    redHPBar3.anchor.setTo(0.5, 0.5);
+    redHPBar3.smoothed = false;
+
+    blueHPBar1 = game.add.sprite(game.width - 25, game.height - 50, 'healthbar');
+    blueHPBar1.anchor.setTo(0.5, 0.5);
+    blueHPBar1.smoothed = false;
+
+    blueHPBar2 = game.add.sprite(game.width - 60, game.height - 50, 'healthbar');
+    blueHPBar2.anchor.setTo(0.5, 0.5);
+    blueHPBar2.smoothed = false;
+
+    blueHPBar3 = game.add.sprite(game.width -95, game.height -50, 'healthbar');
+    blueHPBar3.anchor.setTo(0.5, 0.5);
+    blueHPBar3.smoothed = false;
 
     for (var i = 0; i < 20; i++)
     {
@@ -65,6 +96,7 @@ function create () {
     blueShip.collideWorldBounds = true;
     blueShip.scale.setTo(4, 4);
     blueShip.hp = 3;
+
     
     redShip = game.add.sprite(game.world.centerX, 50, 'ship_red_sprite');
     redShip.name = "Red Ship";
@@ -100,6 +132,12 @@ function create () {
 function restartGame() {
     redShip.reset(game.world.centerX, 50);
     blueShip.reset(game.world.centerX, game.world.height - 50);
+    redHPBar1.reset(25, 50, 'healthbar');
+    redHPBar2.reset(60, 50, 'healthbar');
+    redHPBar3.reset(95, 50, 'healthbar');
+    blueHPBar1.reset(game.width - 25, game.height - 50, 'healthbar');
+    blueHPBar2.reset(game.width - 60, game.height - 50, 'healthbar');
+    blueHPBar3.reset(game.width - 95, game.height - 50, 'healthbar');
     
     redShip.hp = 3;
     blueShip.hp = 3;
@@ -208,6 +246,26 @@ function shipHit (ship, bullet) {
 
     bullet.kill();
     ship.hp--;
+
+    if(ship.name === "Blue Ship") {
+        if(ship.hp === 2) {
+            blueHPBar3.kill();
+        } else if(ship.hp === 1){
+            blueHPBar2.kill();
+        } else{
+            blueHPBar1.kill();
+        }
+    }
+
+    if(ship.name === "Red Ship") {
+        if(ship.hp === 2) {
+            redHPBar3.kill();
+        } else if(ship.hp === 1){
+            redHPBar2.kill();
+        } else{
+            redHPBar1.kill();
+        }
+    }
 
     if (ship.hp === 0) {
         ship.kill();
