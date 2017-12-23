@@ -11,6 +11,12 @@ var explosions;
 var winner;
 var winnerBanner;
 var restartText;
+var blueHPBar1;
+var blueHPBar2;
+var blueHPBar3;
+var redHPBar1;
+var redHPBar2;
+var redHPBar3;
 
 function preload () {
     game.load.image('logo', 'phaser.png');
@@ -19,6 +25,7 @@ function preload () {
     game.load.image('bullet_blue', 'sprites/bullet_blue.png');
     game.load.image('bullet_red', 'sprites/bullet_red.png');
     game.load.image('explosion', 'sprites/explosion.png');
+    game.load.image('healthbar', 'sprites/health_bar.png');
 }
 
 function create () {
@@ -29,6 +36,30 @@ function create () {
     blueBullets = game.add.group();
     blueBullets.enableBody = true;
     blueBullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    redHPBar1 = game.add.sprite(25, 50, 'healthbar');
+    redHPBar1.anchor.setTo(0.5, 0.5);
+    redHPBar1.smoothed = false;
+
+    redHPBar2 = game.add.sprite(60, 50, 'healthbar');
+    redHPBar2.anchor.setTo(0.5, 0.5);
+    redHPBar2.smoothed = false;
+
+    redHPBar3 = game.add.sprite(95, 50, 'healthbar');
+    redHPBar3.anchor.setTo(0.5, 0.5);
+    redHPBar3.smoothed = false;
+
+    blueHPBar1 = game.add.sprite(game.width-25, game.height - 50, 'healthbar');
+    blueHPBar1.anchor.setTo(0.5, 0.5);
+    blueHPBar1.smoothed = false;
+
+    blueHPBar2 = game.add.sprite(game.width - 60, game.height - 50, 'healthbar');
+    blueHPBar2.anchor.setTo(0.5, 0.5);
+    blueHPBar2.smoothed = false;
+
+    blueHPBar3 = game.add.sprite(game.width -95, game.height -50, 'healthbar');
+    blueHPBar3.anchor.setTo(0.5, 0.5);
+    blueHPBar3.smoothed = false;
 
     for (var i = 0; i < 20; i++)
     {
@@ -64,7 +95,7 @@ function create () {
     blueShip.collideWorldBounds = true;
     blueShip.scale.setTo(4, 4);
     blueShip.hp = 3;
-    
+
     redShip = game.add.sprite(game.world.centerX, 50, 'ship_red');
     redShip.name = "Red Ship";
     redShip.anchor.setTo(0.5, 0.5);
