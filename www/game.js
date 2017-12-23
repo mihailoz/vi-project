@@ -15,10 +15,11 @@ var restartText;
 function preload () {
     game.load.image('logo', 'phaser.png');
     game.load.image('ship_blue', 'sprites/space_ship_blue.png');
-    game.load.image('ship_red', 'sprites/space_ship_red.png');
+    game.load.image('ship_red', 'sprites/red_ship.png');
     game.load.image('bullet_blue', 'sprites/bullet_blue.png');
     game.load.image('bullet_red', 'sprites/bullet_red.png');
     game.load.image('explosion', 'sprites/explosion.png');
+    game.load.spritesheet('ship_red_sprite', 'sprites/red_ship_sprite.png', 92, 64);
 }
 
 function create () {
@@ -65,13 +66,16 @@ function create () {
     blueShip.scale.setTo(4, 4);
     blueShip.hp = 3;
     
-    redShip = game.add.sprite(game.world.centerX, 50, 'ship_red');
+    redShip = game.add.sprite(game.world.centerX, 50, 'ship_red_sprite');
     redShip.name = "Red Ship";
     redShip.anchor.setTo(0.5, 0.5);
     redShip.smoothed = false;
-    redShip.scale.setTo(4, 4);
+    redShip.scale.setTo(1, 1);
     redShip.angle = 180;
     redShip.hp = 3;
+
+    redShip.animations.add('engine');
+    redShip.animations.play('engine', 250, true);
 
     game.physics.enable(blueShip, Phaser.Physics.ARCADE);
     game.physics.enable(redShip, Phaser.Physics.ARCADE);
@@ -149,9 +153,9 @@ function gameRunningUpdate () {
         blueShip.body.velocity.x = 300;
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.A) && redShip.x > 32) {
+    if (game.input.keyboard.isDown(Phaser.Keyboard.A) && redShip.x > 48) {
         redShip.body.velocity.x = -300;
-    } else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && redShip.x < game.width - 32) {
+    } else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && redShip.x < game.width - 48) {
         redShip.body.velocity.x = 300;
     }
 
@@ -186,7 +190,7 @@ function fireRedBullet () {
         bullet = redBullets.getFirstExists(false);
 
         if (bullet) {
-            bullet.reset(redShip.x, redShip.y);
+            bullet.reset(redShip.x, redShip.y + 32);
             bullet.body.velocity.y = 500;
             redBulletTime = game.time.now + 250;
         }
@@ -198,7 +202,7 @@ function shipHit (ship, bullet) {
     
     explosion = explosions.getFirstExists(false);
     
-    explosion.reset((bullet.x + ship.x) / 2, (bullet.y + ship.y) / 2);
+    explosion.reset(bullet.x, (bullet.y + ship.y) / 2);
 
     game.time.events.add(200, resetExplosion, this, explosion);
 
