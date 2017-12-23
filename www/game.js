@@ -22,6 +22,7 @@ function create () {
     // var logo = game.add.sprite(game.world.centerX, game.world.centerY, 'logo');
     // logo.anchor.setTo(0.5, 0.5);
 
+    game.physics.setBoundsToWorld();
     blueBullets = game.add.group();
     blueBullets.enableBody = true;
     blueBullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -48,6 +49,7 @@ function create () {
         b.name = 'bullet_red_' + i;
         b.exists = false;
         b.visible = false;
+        b.checkWorldBounds = true;
         b.anchor.setTo(0.5, 0.5);
         b.events.onOutOfBounds.add(resetBullet, this);
     }
