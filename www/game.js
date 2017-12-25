@@ -25,7 +25,7 @@ function preload () {
     game.load.image('ship_red', 'sprites/red_ship.png');
     game.load.image('bullet_blue', 'sprites/bullet_blue.png');
     game.load.image('bullet_red', 'sprites/bullet_red.png');
-    game.load.image('explosion', 'sprites/explosion.png');
+    game.load.spritesheet('explosion', 'sprites/explosion.png', 16, 16);
     game.load.spritesheet('ship_red_sprite', 'sprites/red_ship_sprite.png', 92, 64);
     game.load.image('healthbar', 'sprites/health_bar.png');
     game.load.image('blue_power_bar', 'sprites/power_bar_blue.png');
@@ -66,6 +66,7 @@ function create () {
         e.exists = false;
         e.visible = false;
         e.anchor.setTo(0.5, 0.5);
+        e.animations.add('explode', null, 20, false);
     }
 
     cursors = game.input.keyboard.createCursorKeys();
@@ -178,8 +179,7 @@ function shipHit (ship, bullet) {
     explosion = explosions.getFirstExists(false);
     
     explosion.reset(bullet.x, (bullet.y + ship.y) / 2);
-
-    game.time.events.add(200, resetExplosion, this, explosion);
+    explosion.play('explode', null, false, true);
 
     bullet.kill();
     ship.hp--;
@@ -207,8 +207,7 @@ function bulletCollisionHandler (bullet1, bullet2) {
     explosion = explosions.getFirstExists(false);
     
     explosion.reset((bullet1.x + bullet2.x) / 2, (bullet1.y + bullet2.y) / 2);
-
-    game.time.events.add(200, resetExplosion, this, explosion);
+    explosion.play('explode', null, false, true);
 
     bullet1.kill();
     bullet2.kill();
