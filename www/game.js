@@ -13,6 +13,10 @@ var winnerBanner;
 var restartText;
 var blueHPBars;
 var redHPBars;
+var bluePowerBar;
+var redPowerBar;
+var bluePowerCounter;
+var redPowerCounter;
 var isRunning = true;
 
 function preload () {
@@ -24,6 +28,8 @@ function preload () {
     game.load.image('explosion', 'sprites/explosion.png');
     game.load.spritesheet('ship_red_sprite', 'sprites/red_ship_sprite.png', 92, 64);
     game.load.image('healthbar', 'sprites/health_bar.png');
+    game.load.image('blue_power_bar', 'sprites/power_bar_blue.png');
+    game.load.image('red_power_bar', 'sprites/power_bar_red.png');
 }
 
 function create () {
@@ -43,6 +49,12 @@ function create () {
 
     game.physics.enable(blueShip, Phaser.Physics.ARCADE);
     game.physics.enable(redShip, Phaser.Physics.ARCADE);
+
+    bluePowerBar = [];
+    redPowerBar = [];
+
+    bluePowerCounter = 0;
+    redPowerCounter = 0;
 
     explosions = game.add.group();
     explosions.enableBody = true;
@@ -128,6 +140,13 @@ function fireBlueBullet () {
             bullet.reset(blueShip.x, blueShip.y);
             bullet.body.velocity.y = -500;
             blueBulletTime = game.time.now + 250;
+
+            if(bluePowerCounter < 20) {
+                bluePowerBar[bluePowerCounter] = game.add.sprite(25, game.height - 25, 'blue_power_bar');
+                bluePowerBar[bluePowerCounter].anchor.setTo(0.5 - bluePowerCounter, 0.5);
+                bluePowerBar[bluePowerCounter].smoother = false;
+                bluePowerCounter++;
+            }
         }
     }
 
@@ -142,6 +161,13 @@ function fireRedBullet () {
             bullet.reset(redShip.x, redShip.y + 32);
             bullet.body.velocity.y = 500;
             redBulletTime = game.time.now + 250;
+
+            if(redPowerCounter < 20) {
+                redPowerBar[redPowerCounter] = game.add.sprite(game.width - 25, 25, 'red_power_bar');
+                redPowerBar[redPowerCounter].anchor.setTo(0.5 + redPowerCounter, 0.5);
+                redPowerBar[redPowerCounter].smoother = false;
+                redPowerCounter++;
+            }
         }
     }
 
@@ -218,6 +244,18 @@ function finishGame(winner) {
     blueBullets.forEachAlive(function (bullet) {
         bullet.kill();
     }, this);
+
+    for(i=0; i < redPowerCounter; i++) {
+        redPowerBar[i].kill();
+    }
+
+    redPowerCounter = 0;
+
+    for(i=0; i < bluePowerCounter; i++) {
+        bluePowerBar[i].kill();
+    }
+
+    bluePowerCounter = 0;
 
     isRunning = false;
 }
