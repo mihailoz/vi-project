@@ -6,6 +6,9 @@ function createBlueShip(game) {
     blueShip.collideWorldBounds = true;
     blueShip.scale.setTo(4, 4);
     blueShip.hp = 3;
+    game.physics.enable(blueShip, Phaser.Physics.ARCADE);
+    blueShip.body.collideWorldBounds = true;
+    blueShip.body.bounce.setTo(1, 1);
 
     return blueShip;
 }
@@ -18,6 +21,9 @@ function createRedShip(game) {
     redShip.scale.setTo(1, 1);
     redShip.angle = 180;
     redShip.hp = 3;
+    game.physics.enable(redShip, Phaser.Physics.ARCADE);
+    redShip.body.collideWorldBounds = true;
+    redShip.body.bounce.setTo(1, 1);
 
     redShip.animations.add('engine');
     redShip.animations.play('engine', 250, true);

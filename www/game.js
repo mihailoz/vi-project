@@ -11,13 +11,12 @@ var explosions;
 var winner;
 var winnerBanner;
 var restartText;
+var headlineBanner;
+var startText;
 var blueHPBars;
 var redHPBars;
-var bluePowerBar;
-var redPowerBar;
-var bluePowerCounter;
-var redPowerCounter;
-var isRunning = true;
+var status = 'started';
+var isOpen = false;
 
 function preload () {
     game.load.image('logo', 'phaser.png');
@@ -28,13 +27,13 @@ function preload () {
     game.load.spritesheet('explosion', 'sprites/explosion.png', 16, 16);
     game.load.spritesheet('ship_red_sprite', 'sprites/red_ship_sprite.png', 92, 64);
     game.load.image('healthbar', 'sprites/health_bar.png');
-    game.load.image('blue_power_bar', 'sprites/power_bar_blue.png');
-    game.load.image('red_power_bar', 'sprites/power_bar_red.png');
 }
 
 function create () {
     // var logo = game.add.sprite(game.world.centerX, game.world.centerY, 'logo');
     // logo.anchor.setTo(0.5, 0.5);
+
+    openGame();
 
     game.physics.setBoundsToWorld();
     
@@ -49,12 +48,6 @@ function create () {
 
     game.physics.enable(blueShip, Phaser.Physics.ARCADE);
     game.physics.enable(redShip, Phaser.Physics.ARCADE);
-
-    bluePowerBar = [];
-    redPowerBar = [];
-
-    bluePowerCounter = 0;
-    redPowerCounter = 0;
 
     explosions = game.add.group();
     explosions.enableBody = true;
@@ -77,6 +70,8 @@ function create () {
 function restartGame() {
     redShip.reset(game.world.centerX, 50);
     blueShip.reset(game.world.centerX, game.world.height - 50);
+    blueShip.angle = 0;
+    redShip.angle = 180;
     redHPBars.reset();
     blueHPBars.reset();
     
@@ -87,16 +82,19 @@ function restartGame() {
     winnerBanner.kill();
     restartText.kill();
 
-    isRunning = true;
+    status = 'running';
 }
 
 function update() {
-    blueShip.body.velocity.x = 0;
-    blueShip.body.velocity.y = 0;
-    redShip.body.velocity.x = 0;
-    redShip.body.velocity.y = 0;
+    if(status === 'started'){
+        if(game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) {
+            headlineBanner.kill();
+            startText.kill();
+            isOpen = true;
+        }
+    }
 
-    if(!isRunning) {
+    if(status === 'finished') {
         if(game.input.keyboard.isDown(Phaser.Keyboard.ENTER)) {
             restartGame();
         }
@@ -109,25 +107,37 @@ function gameRunningUpdate () {
     game.physics.arcade.overlap(blueBullets, redBullets, bulletCollisionHandler, null, this);
     game.physics.arcade.overlap(blueBullets, redShip, shipHit, null, this);
     game.physics.arcade.overlap(redBullets, blueShip, shipHit, null, this);
+    game.physics.arcade.overlap(redShip, blueShip, shipSuicide, null, this);
 
-    if (cursors.left.isDown && blueShip.x > 32) {
-        blueShip.body.velocity.x = -300;
-    } else if (cursors.right.isDown && blueShip.x < game.width - 32) {
-        blueShip.body.velocity.x = 300;
-    }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.A) && redShip.x > 48) {
-        redShip.body.velocity.x = -300;
-    } else if (game.input.keyboard.isDown(Phaser.Keyboard.D) && redShip.x < game.width - 48) {
-        redShip.body.velocity.x = 300;
-    }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.P)) {
-        fireBlueBullet();
-    }
+    if(isOpen) {
+        game.physics.arcade.accelerationFromRotation(blueShip.rotation - 0.5 * 3.14, 200, blueShip.body.velocity);
+        game.physics.arcade.accelerationFromRotation(redShip.rotation - 0.5 * 3.14, 200, redShip.body.velocity);
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.B)) {
-        fireRedBullet();
+        if (cursors.left.isDown) {
+            blueShip.body.angularVelocity = -300;
+        } else if (cursors.right.isDown) {
+            blueShip.body.angularVelocity = 300;
+        } else {
+            blueShip.body.angularVelocity = 0;
+        }
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
+            redShip.body.angularVelocity = -300;
+        } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
+            redShip.body.angularVelocity = 300;
+        } else {
+            redShip.body.angularVelocity = 0;
+        }
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.P)) {
+            fireBlueBullet();
+        }
+
+        if (game.input.keyboard.isDown(Phaser.Keyboard.B)) {
+            fireRedBullet();
+         }
     }
 }
 
@@ -139,15 +149,9 @@ function fireBlueBullet () {
         if (bullet)
         {
             bullet.reset(blueShip.x, blueShip.y);
-            bullet.body.velocity.y = -500;
-            blueBulletTime = game.time.now + 250;
-
-            if(bluePowerCounter < 20) {
-                bluePowerBar[bluePowerCounter] = game.add.sprite(25, game.height - 25, 'blue_power_bar');
-                bluePowerBar[bluePowerCounter].anchor.setTo(0.5 - bluePowerCounter, 0.5);
-                bluePowerBar[bluePowerCounter].smoother = false;
-                bluePowerCounter++;
-            }
+            bullet.rotation = blueShip.rotation;
+            game.physics.arcade.velocityFromRotation(blueShip.rotation - 0.5 * 3.14, 500, bullet.body.velocity);
+            blueBulletTime = game.time.now + 300;
         }
     }
 
@@ -159,16 +163,10 @@ function fireRedBullet () {
         bullet = redBullets.getFirstExists(false);
 
         if (bullet) {
-            bullet.reset(redShip.x, redShip.y + 32);
-            bullet.body.velocity.y = 500;
-            redBulletTime = game.time.now + 250;
-
-            if(redPowerCounter < 20) {
-                redPowerBar[redPowerCounter] = game.add.sprite(game.width - 25, 25, 'red_power_bar');
-                redPowerBar[redPowerCounter].anchor.setTo(0.5 + redPowerCounter, 0.5);
-                redPowerBar[redPowerCounter].smoother = false;
-                redPowerCounter++;
-            }
+            bullet.reset(redShip.x, redShip.y);
+            bullet.rotation = redShip.rotation;
+            game.physics.arcade.velocityFromRotation(redShip.rotation - 0.5 * 3.14, 500, bullet.body.velocity);
+            redBulletTime = game.time.now + 300;
         }
     }
 
@@ -180,6 +178,7 @@ function shipHit (ship, bullet) {
     
     explosion.reset(bullet.x, (bullet.y + ship.y) / 2);
     explosion.play('explode', null, false, true);
+    explosion.scale.setTo(3, 3);
 
     bullet.kill();
     ship.hp--;
@@ -194,6 +193,9 @@ function shipHit (ship, bullet) {
 
     if (ship.hp === 0) {
         ship.kill();
+        explosion.reset(ship.x, ship.y);
+        explosion.play('explode', null, false, true);
+        explosion.scale.setTo(6, 6);
         
         if(ship.name === "Blue Ship") {
             finishGame("Red Ship");
@@ -203,11 +205,25 @@ function shipHit (ship, bullet) {
     }
 }
 
+function shipSuicide(ship1, ship2) {
+    explosion=explosions.getFirstExists(false);
+
+    explosion.reset((ship1.x + ship2.x)/2, (ship1.y + ship2.y)/2);
+    explosion.play('explode', null, false, true);
+    explosion.scale.setTo(8, 8);
+
+    ship1.kill();
+    ship2.kill();
+
+    finishGame('Tie')
+}
+
 function bulletCollisionHandler (bullet1, bullet2) {
     explosion = explosions.getFirstExists(false);
     
     explosion.reset((bullet1.x + bullet2.x) / 2, (bullet1.y + bullet2.y) / 2);
     explosion.play('explode', null, false, true);
+    explosion.scale.setTo(2, 2);
 
     bullet1.kill();
     bullet2.kill();
@@ -217,14 +233,35 @@ function resetExplosion(explosion) {
     explosion.kill();
 }
 
+function openGame() {
+    var style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+
+    headlineBanner = game.add.text(game.width / 2, game.height / 2, "Space cowboys in space", style);
+    headlineBanner.anchor.setTo(0.5, 0.5);
+    headlineBanner.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+
+    var style2 = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
+
+    startText = game.add.text(game.width / 2, (game.height / 2) + 100, "To start the game press enter...", style2);
+    startText.anchor.setTo(0.5, 0.5);
+    startText.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+
+    status = 'started';
+}
+
 function finishGame(winner) {
     if(!winnerBanner) {
         var style = { font: "bold 64px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
-        winnerBanner = game.add.text(game.width / 2, game.height / 2, "The winner is " + winner, style);
-        winnerBanner.anchor.setTo(0.5, 0.5);
-        winnerBanner.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
-
+        if(winner === 'Tie') {
+            winnerBanner = game.add.text(game.width / 2, game.height / 2, "It's a tie", style);
+            winnerBanner.anchor.setTo(0.5, 0.5);
+            winnerBanner.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+        } else{
+            winnerBanner = game.add.text(game.width / 2, game.height / 2, "The winner is " + winner, style);
+            winnerBanner.anchor.setTo(0.5, 0.5);
+            winnerBanner.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
+        }
         var style2 = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
         restartText = game.add.text(game.width / 2, (game.height / 2) + 100, "To start new game press enter...", style2);
@@ -232,7 +269,11 @@ function finishGame(winner) {
         restartText.setShadow(6, 6, 'rgba(0,0,0,0.5)', 2);
     } else {
         winnerBanner.reset(game.width / 2, game.height / 2);
-        winnerBanner.text = "The winner is " + winner;
+        if(winner === 'Tie') {
+            winnerBanner.text = "It's a tie";
+        } else{
+            winnerBanner.text = "The winner is " + winner;
+        }
         restartText.reset(game.width / 2, (game.height / 2) + 100);
     }
 
@@ -244,17 +285,5 @@ function finishGame(winner) {
         bullet.kill();
     }, this);
 
-    for(i=0; i < redPowerCounter; i++) {
-        redPowerBar[i].kill();
-    }
-
-    redPowerCounter = 0;
-
-    for(i=0; i < bluePowerCounter; i++) {
-        bluePowerBar[i].kill();
-    }
-
-    bluePowerCounter = 0;
-
-    isRunning = false;
+    status = 'finished';
 }
