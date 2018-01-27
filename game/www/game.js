@@ -64,7 +64,7 @@ function create () {
 
     cursors = game.input.keyboard.createCursorKeys();
     game.input.keyboard.addKeyCapture([ Phaser.Keyboard.A, Phaser.Keyboard.D ]);
-    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.P, Phaser.Keyboard.B, Phaser.Keyboard.ENTER ]);
+    game.input.keyboard.addKeyCapture([ Phaser.Keyboard.SPACEBAR, Phaser.Keyboard.ENTER ]);
 }
 
 function restartGame() {
@@ -123,21 +123,25 @@ function gameRunningUpdate () {
             blueShip.body.angularVelocity = 0;
         }
 
-        if (game.input.keyboard.isDown(Phaser.Keyboard.A)) {
-            redShip.body.angularVelocity = -300;
-        } else if (game.input.keyboard.isDown(Phaser.Keyboard.D)) {
-            redShip.body.angularVelocity = 300;
-        } else {
-            redShip.body.angularVelocity = 0;
-        }
-
-        if (game.input.keyboard.isDown(Phaser.Keyboard.P)) {
+        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             fireBlueBullet();
         }
 
-        if (game.input.keyboard.isDown(Phaser.Keyboard.B)) {
-            fireRedBullet();
-         }
+        sendGameData(createGameData());
+    }
+}
+
+function updateRedShip(actions) {
+    if (actions.fire) {
+        fireRedBullet();
+    }
+    
+    if (actions.left) {
+        redShip.body.angularVelocity = -300;
+    } else if (actions.right) {
+        redShip.body.angularVelocity = 300;
+    } else {
+        redShip.body.angularVelocity = 0;
     }
 }
 
@@ -286,4 +290,45 @@ function finishGame(winner) {
     }, this);
 
     status = 'finished';
+}
+
+function createGameData() {
+    var data = {
+        redShip: {
+            angle: redShip.body.angle,
+            x: redShip.x,
+            y: redShip.y,
+            hp: redShip.hp
+        },
+        blueShip: {
+            angle: blueShip.body.angle,
+            x: blueShip.x,
+            y: blueShip.y,
+            hp: blueShip.hp
+        },
+        gameProperties: {
+            width: game.world.width,
+            height: game.world.height
+        },
+        redBullets: [],
+        blueBullets: []
+    };
+
+    redBullets.forEachExists(function (bullet) {
+        data.redBullets.push({
+            x: bullet.x,
+            y: bullet.y,
+            angle: bullet.body.angle
+        });
+    });
+
+    blueBullets.forEachExists(function (bullet) {
+        data.blueBullets.push({
+            x: bullet.x,
+            y: bullet.y,
+            angle: bullet.body.angle
+        });
+    });
+
+    return JSON.stringify(data);
 }
