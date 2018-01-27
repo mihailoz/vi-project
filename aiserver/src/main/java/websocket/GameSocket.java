@@ -30,7 +30,8 @@ public class GameSocket extends WebSocketAdapter
         super.onWebSocketText(message);
         try {
             GameData data = mapper.readValue(message, GameData.class);
-            AIController.calculateNextMove(data);
+            AIController controller = new AIController();
+            controller.calculateNextMove(data);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.print("ERROR: Could not deserialize GameData object.");
