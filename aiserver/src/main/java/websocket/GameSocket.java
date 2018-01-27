@@ -1,6 +1,7 @@
 package websocket;
 
-import ai.AIController;
+import ai.Controlers.AIController;
+import ai.Controlers.StandardController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.GameData;
 import org.eclipse.jetty.websocket.api.Session;
@@ -30,8 +31,8 @@ public class GameSocket extends WebSocketAdapter
         super.onWebSocketText(message);
         try {
             GameData data = mapper.readValue(message, GameData.class);
-            AIController controller = new AIController();
-            controller.calculateNextMove(data);
+            AIController controller = new StandardController();
+            controller.sendInformation(data);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.print("ERROR: Could not deserialize GameData object.");
