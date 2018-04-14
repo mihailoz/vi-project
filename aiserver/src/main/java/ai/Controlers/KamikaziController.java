@@ -6,7 +6,7 @@ import common.*;
 
 import java.util.List;
 
-public class KamikaziController extends AIController implements IDodge,IAttack {
+abstract public class KamikaziController extends AIController {
     public Decision turnToAttack(ShipProperties myShip, ShipProperties enemyShip) {
         return null;
     }
@@ -19,9 +19,10 @@ public class KamikaziController extends AIController implements IDodge,IAttack {
         return false;
     }
 
-    public Decision turnToDodge(ShipProperties ship, BulletProperties bullet) {
+    public Decision turnToDodge(ShipProperties myShip, BulletProperties nearest, BulletProperties secondNearest) {
         return null;
     }
+
 
     public ActionData calculateNextMove(GameData gameData) {
         return null;

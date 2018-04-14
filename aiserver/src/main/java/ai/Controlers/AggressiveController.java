@@ -8,7 +8,7 @@ import common.Decision;
 import common.GameData;
 import common.ShipProperties;
 
-public class AggressiveController extends AIController implements IAttack, IShoot {
+abstract public class AggressiveController extends AIController {
     public Decision turnToAttack(ShipProperties myShip, ShipProperties enemyShip) {
         return null;
     }

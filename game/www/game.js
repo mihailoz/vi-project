@@ -36,7 +36,7 @@ function create () {
     openGame();
 
     game.physics.setBoundsToWorld();
-    
+
     redHPBars = createRedHPBars(game);
     blueHPBars = createBlueHPBars(game);
 
@@ -68,13 +68,28 @@ function create () {
 }
 
 function restartGame() {
-    redShip.reset(game.world.centerX, 50);
-    blueShip.reset(game.world.centerX, game.world.height - 50);
+    var xr = Math.random() * game.world.width;
+
+    if(xr < 100)
+      xr += 100;
+    if(xr >= game.world.width - 100)
+      xr -= 100;
+
+    redShip.reset(xr, 50);
+
+    var xb = Math.random() * game.world.width;
+
+    if(xb < 100)
+      xb += 100;
+    if(xb >= game.world.width - 100)
+      xb -= 100;
+
+    blueShip.reset(xb, game.world.height - 50);
     blueShip.angle = 0;
     redShip.angle = 180;
     redHPBars.reset();
     blueHPBars.reset();
-    
+
     redShip.hp = 3;
     blueShip.hp = 3;
 
@@ -135,7 +150,7 @@ function updateRedShip(actions) {
     if (actions.fire) {
         fireRedBullet();
     }
-    
+
     if (actions.left) {
         redShip.body.angularVelocity = -300;
     } else if (actions.right) {
@@ -177,9 +192,9 @@ function fireRedBullet () {
 }
 
 function shipHit (ship, bullet) {
-    
+
     explosion = explosions.getFirstExists(false);
-    
+
     explosion.reset(bullet.x, (bullet.y + ship.y) / 2);
     explosion.play('explode', null, false, true);
     explosion.scale.setTo(3, 3);
@@ -200,7 +215,7 @@ function shipHit (ship, bullet) {
         explosion.reset(ship.x, ship.y);
         explosion.play('explode', null, false, true);
         explosion.scale.setTo(6, 6);
-        
+
         if(ship.name === "Blue Ship") {
             finishGame("Red Ship");
         } else {
@@ -224,7 +239,7 @@ function shipSuicide(ship1, ship2) {
 
 function bulletCollisionHandler (bullet1, bullet2) {
     explosion = explosions.getFirstExists(false);
-    
+
     explosion.reset((bullet1.x + bullet2.x) / 2, (bullet1.y + bullet2.y) / 2);
     explosion.play('explode', null, false, true);
     explosion.scale.setTo(2, 2);

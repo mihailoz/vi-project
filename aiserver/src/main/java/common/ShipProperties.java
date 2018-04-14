@@ -1,9 +1,11 @@
 package common;
 
+import ai.Contracts.Calculable;
+
 /**
  * Created by mihailozdravkovic on 1/27/18.
  */
-public class ShipProperties {
+public class ShipProperties implements Calculable{
     private Double angle;
     private int x, y, hp;
 

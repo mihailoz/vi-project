@@ -1,5 +1,12 @@
 function createBlueShip(game) {
-    var blueShip = game.add.sprite(game.world.centerX, game.world.height - 50, 'ship_blue');
+    var x = Math.random() * game.world.width;
+
+    if(x < 100)
+      x += 100;
+    if(x >= game.world.width - 100)
+      x -= 100;
+
+    var blueShip = game.add.sprite(x , game.world.height - 50, 'ship_blue');
     blueShip.name = "Blue Ship";
     blueShip.anchor.setTo(0.5, 0.5);
     blueShip.smoothed = false;
@@ -14,7 +21,14 @@ function createBlueShip(game) {
 }
 
 function createRedShip(game) {
-    var redShip = game.add.sprite(game.world.centerX, 50, 'ship_red_sprite');
+    var x = Math.random() * game.world.width;
+
+    if(x < 100)
+      x += 100;
+    if(x >= game.world.width - 100)
+      x -= 100;
+
+    var redShip = game.add.sprite(x, 50, 'ship_red_sprite');
     redShip.name = "Red Ship";
     redShip.anchor.setTo(0.5, 0.5);
     redShip.smoothed = false;
