@@ -5,7 +5,7 @@ import ai.Contracts.Calculable;
 /**
  * Created by mihailozdravkovic on 1/27/18.
  */
-public class BulletProperties implements Calculable{
+public class BulletProperties implements Calculable {
     private int x, y;
     private Double angle;
 

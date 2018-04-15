@@ -20,14 +20,11 @@ public class Application {
         ServletHolder holderEvents = new ServletHolder("game-events", GameServlet.class);
         context.addServlet(holderEvents, "/*");
 
-        try
-        {
+        try {
             server.start();
             server.dump(System.err);
             server.join();
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             t.printStackTrace(System.err);
         }
     }
