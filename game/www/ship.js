@@ -11,7 +11,6 @@ function createBlueShip(game) {
     blueShip.anchor.setTo(0.5, 0.5);
     blueShip.smoothed = false;
     blueShip.collideWorldBounds = true;
-    blueShip.scale.setTo(4, 4);
     blueShip.hp = 3;
     game.physics.enable(blueShip, Phaser.Physics.ARCADE);
     blueShip.body.collideWorldBounds = true;

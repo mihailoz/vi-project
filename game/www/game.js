@@ -147,6 +147,8 @@ function gameRunningUpdate () {
 }
 
 function updateRedShip(actions) {
+    game.physics.arcade.accelerationFromRotation(redShip.rotation - 0.5 * 3.14, 200, redShip.body.velocity);
+
     if (actions.fire) {
         fireRedBullet();
     }
